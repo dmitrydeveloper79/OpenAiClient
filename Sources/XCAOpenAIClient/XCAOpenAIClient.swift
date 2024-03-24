@@ -19,7 +19,7 @@ public struct OpenAIClient {
     
     public func promptChatGPT(
         prompt: String,
-        model: Components.Schemas.CreateChatCompletionRequest.modelPayload.Value2Payload = .gpt_3_5_turbo_0125,
+        model: String = "gpt_3_5_turbo_0125",
         assistantPrompt: String = "You are a helpful assistant",
         prevMessages: [Components.Schemas.ChatCompletionRequestMessage] = []) async throws -> String {
         let response = try await client.createChatCompletion(body: .json(.init(
