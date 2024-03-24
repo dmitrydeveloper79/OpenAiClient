@@ -15,11 +15,22 @@ public struct OpenAIClient {
             middlewares: [AuthMiddleware(apiKey: apiKey)])
         self.apiKey = apiKey
     }
+
+extension Components.Schemas.CreateChatCompletionRequest.modelPayload {
+    enum Value2Payload: Codable {
+        // Other cases...
+        case gpt_3_5_turbo_0125
+        // Potentially more cases...
+        
+        // Implement Codable or any other necessary protocols based on your overall schema design.
+    }
+}
+
     
     
     public func promptChatGPT(
         prompt: String,
-        model: String = "gpt_3_5_turbo_0125",
+      model: Components.Schemas.CreateChatCompletionRequest.modelPayload.Value2Payload = .gpt_3_5_turbo_0125,
         assistantPrompt: String = "You are a helpful assistant",
         prevMessages: [Components.Schemas.ChatCompletionRequestMessage] = []) async throws -> String {
         let response = try await client.createChatCompletion(body: .json(.init(
