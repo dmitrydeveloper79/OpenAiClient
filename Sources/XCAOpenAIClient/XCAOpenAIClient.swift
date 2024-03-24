@@ -42,6 +42,48 @@ public struct OpenAIClient {
         }
         
     }
+
+    public func promptChatGPT35(prompt: String) async throws -> String {
+    let endpointURL = URL(string: "https://api.openai.com/v1/chat/completions")!
+
+    // Wrap the prompt in the messages structure
+    let messages = [
+        ["role": "system", "content": "You are a helpful assistant."],
+        ["role": "user", "content": prompt]
+    ]
+
+    // Prepare the request body with the messages and model information
+    let requestBody: [String: Any] = [
+        "model": "gpt-3.5-turbo",
+        "messages": messages
+    ]
+
+    var request = URLRequest(url: endpointURL)
+    request.httpMethod = "POST"
+    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.addValue("Bearer \(self.apiKey)", forHTTPHeaderField: "Authorization")
+    request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+
+    // Perform the request using the urlSession property
+    let (data, response) = try await urlSession.data(for: request)
+    
+    guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+        throw URLError(.badServerResponse)
+    }
+
+    // Parse the response
+    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+       let choices = json["choices"] as? [[String: Any]],
+       let firstChoice = choices.first,
+       let message = firstChoice["message"] as? [String: Any],
+       let content = message["content"] as? String {
+        return content
+    } else {
+        throw URLError(.cannotParseResponse)
+    }
+}
+
+    
     
     public func generateSpeechFrom(input: String,
                                    model: Components.Schemas.CreateSpeechRequest.modelPayload.Value2Payload = .tts_hyphen_1,
